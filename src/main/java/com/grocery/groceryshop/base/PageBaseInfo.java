@@ -1,52 +1,37 @@
 package com.grocery.groceryshop.base;
 
-import lombok.AllArgsConstructor;
+import com.github.pagehelper.Page;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.util.List;
 
 @Data
 public class PageBaseInfo<T> {
-    private List<T> data;
-    //当前页
-    private long page;
+    @ApiModelProperty(value = "当前页号")
+    private int pageNum;
 
+    @ApiModelProperty(value = "每页的数量")
+    private int pageSize;
 
-    //总页数
+    @ApiModelProperty(value = "总记录数")
     private long total;
 
-    public PageBaseInfo(List<T> data) {
-        this.data = data;
-    }
+    @ApiModelProperty(value = "总页数")
+    private int pages;
 
-    public <T> PageBaseInfo<T> success(List<T> data) {
-        PageBaseInfo result = new PageBaseInfo(data);
-        result.setTotal(0L);
+    @ApiModelProperty(value = "结果集")
+    private List<T> list;
+
+
+
+    public static <T> PageBaseInfo<T> build(Page<T> page) {
+        PageBaseInfo result = new PageBaseInfo<>();
+        BeanUtils.copyProperties(page.toPageInfo(), result);
         return result;
     }
 
 
-    public List<T> getData() {
-        return data;
-    }
 
-    public void setData(List<T> data) {
-        this.data = data;
-    }
-
-    public long getPage() {
-        return page;
-    }
-
-    public void setPage(long page) {
-        this.page = page;
-    }
-
-    public long getTotal() {
-        return total;
-    }
-
-    public void setTotal(long total) {
-        this.total = total;
-    }
 }

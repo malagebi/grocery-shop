@@ -1,5 +1,7 @@
 package com.grocery.groceryshop.controller;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.grocery.groceryshop.base.PageBaseInfo;
 import com.grocery.groceryshop.base.ResultBaseBean;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +16,11 @@ public class LoginController {
     @GetMapping(value = "user")
     public PageBaseInfo<Object>  userList(){
         List list=new ArrayList<Integer>();
-        return new PageBaseInfo(list);
+        return PageBaseInfo.build(new Page<>());
     }
     @GetMapping(value = "userOne")
     public ResultBaseBean<Object> userOne(){
+
         List list=new ArrayList<Integer>();
         return ResultBaseBean.success(list);
     }
