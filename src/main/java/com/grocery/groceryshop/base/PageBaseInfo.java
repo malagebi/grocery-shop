@@ -1,6 +1,7 @@
 package com.grocery.groceryshop.base;
 
 import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -26,9 +27,10 @@ public class PageBaseInfo<T> {
 
 
 
-    public static <T> PageBaseInfo<T> build(Page<T> page) {
+    public static <T> PageBaseInfo<T> build(List<T> list) {
+        PageInfo page = new PageInfo(list);
         PageBaseInfo result = new PageBaseInfo<>();
-        BeanUtils.copyProperties(page.toPageInfo(), result);
+        BeanUtils.copyProperties(page, result);
         return result;
     }
 

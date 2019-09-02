@@ -17,11 +17,6 @@
             <pattern>${CONSOLE_LOG_PATTERN}</pattern>
             <charset>utf8</charset>
         </encoder>
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>debug</level>
-            <onMatch>DENY</onMatch>
-            <onMismatch>NEUTRAL</onMismatch>
-        </filter>
     </appender>
 
     <appender name="debuglog" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -78,7 +73,11 @@
     </appender>
 
 
-    <root>
+    <logger name="com.grocery.groceryshop.mapper" level="DEBUG"></logger>
+
+
+
+    <root level="info">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="debuglog"/>
         <appender-ref ref="warnlog"/>
