@@ -1,6 +1,5 @@
 package com.grocery.groceryshop.base;
 
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
