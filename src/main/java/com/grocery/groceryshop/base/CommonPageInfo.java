@@ -1,6 +1,7 @@
 package com.grocery.groceryshop.base;
 
 import com.github.pagehelper.PageInfo;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -8,7 +9,8 @@ import org.springframework.beans.BeanUtils;
 import java.util.List;
 
 @Data
-public class PageBaseInfo<T> {
+@ApiModel(value = "分页信息")
+public class CommonPageInfo<T> {
     @ApiModelProperty(value = "当前页号")
     private int pageNum;
 
@@ -26,9 +28,9 @@ public class PageBaseInfo<T> {
 
 
 
-    public static <T> PageBaseInfo<T> build(List<T> list) {
+    public static <T> CommonPageInfo<T> build(List<T> list) {
         PageInfo page = new PageInfo(list);
-        PageBaseInfo result = new PageBaseInfo<>();
+        CommonPageInfo result = new CommonPageInfo<>();
         BeanUtils.copyProperties(page, result);
         return result;
     }

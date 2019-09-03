@@ -1,42 +1,39 @@
 package com.grocery.groceryshop.controller;
 
-import com.github.pagehelper.Page;
-
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.grocery.groceryshop.base.PageBaseInfo;
-import com.grocery.groceryshop.base.ResultBaseBean;
+import com.grocery.groceryshop.base.CommonPageInfo;
+import com.grocery.groceryshop.base.CommonResult;
 import com.grocery.groceryshop.entity.Commodity;
 import com.grocery.groceryshop.mapper.CommodityMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController(value = "/")
+@Api(tags = "用户模块")
 public class LoginController {
 
     @Resource
-    private CommodityMapper  commodityMapper;
-    @GetMapping(value = "user")
-    public PageBaseInfo<Commodity>  userList(){
-        Commodity data=new Commodity();
-        data.setName("张三");
-        data.setCreateTime(new Date());
-        data.setUpdateTime(new Date());
-        commodityMapper.insert(data);
-        PageHelper.startPage(1, 10);
-        List<Commodity> list=  commodityMapper.selectAll();
-        return PageBaseInfo.build(list);
-    }
-    @GetMapping(value = "userOne")
-    public ResultBaseBean<Object> userOne(){
+    private CommodityMapper commodityMapper;
 
-        List list=new ArrayList<Integer>();
-        return ResultBaseBean.success(list);
+    @GetMapping(value = "user")
+    @ApiOperation(value = "用户列表")
+    public CommonResult userList(HttpServletRequest request, HttpServletResponse response) {
+        PageHelper.startPage(1, 5);
+        List<Commodity> list = commodityMapper.selectAll();
+        CommonPageInfo baseInfo=  CommonPageInfo.build(list);
+        return CommonResult.success(baseInfo);
+    }
+
+    @GetMapping(value = "userOne")
+    public CommonResult<Commodity> userOne() {
+        Commodity info = commodityMapper.selectByPrimaryKey(1L);
+        return CommonResult.success(info);
     }
 }
