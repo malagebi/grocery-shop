@@ -30,38 +30,45 @@
         </jdbcConnection>
 
 
-
         <!-- targetPackage：生成的实体类所在的包 -->
         <!-- targetProject：生成的实体类所在的硬盘位置 -->
         <!-- DataObject 类存放位置 -->
         <javaModelGenerator targetPackage="com.grocery.groceryshop.entity"
                             targetProject=".\src\main\java">
             <!-- 是否允许子包 -->
-            <property name="enableSubPackages" value="false" />
+            <property name="enableSubPackages" value="false"/>
             <!-- 是否对modal添加构造函数 -->
-            <property name="constructorBased" value="false" />
+            <property name="constructorBased" value="false"/>
             <!-- 是否清理从数据库中查询出的字符串左右两边的空白字符 -->
-            <property name="trimStrings" value="true" />
+            <property name="trimStrings" value="true"/>
             <!-- 建立modal对象是否不可改变 即生成的modal对象不会有setter方法，只有构造方法 -->
-            <property name="immutable" value="false" />
+            <property name="immutable" value="false"/>
         </javaModelGenerator>
 
         <!-- targetPackage 和 targetProject：生成的 mapper 文件的包和位置 -->
         <sqlMapGenerator targetPackage="mapper"
                          targetProject=".\src\main\resources">
             <!-- 针对数据库的一个配置，是否把 schema 作为字包名 -->
-            <property name="enableSubPackages" value="false" />
+            <property name="enableSubPackages" value="false"/>
         </sqlMapGenerator>
 
         <!-- targetPackage 和 targetProject：生成的 interface 文件的包和位置 -->
         <javaClientGenerator type="XMLMAPPER"
                              targetPackage="com.grocery.groceryshop.mapper" targetProject=".\src\main\java">
             <!-- 针对 oracle 数据库的一个配置，是否把 schema 作为字包名 -->
-            <property name="enableSubPackages" value="true" />
+            <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
         <!--生成对应表及类名-->
-        <table tableName="commodity" domainObjectName="Commodity"
+        <!--   <table tableName="commodity" domainObjectName="Commodity"
+                  enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
+                  enableSelectByExample="false">
+           </table>-->
+        <table tableName="users" domainObjectName="Users"
+               enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
+               enableSelectByExample="false">
+        </table>
+        <table tableName="user_auth" domainObjectName="UserAuth"
                enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"
                enableSelectByExample="false">
         </table>
