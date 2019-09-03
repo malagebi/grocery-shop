@@ -3,6 +3,7 @@ package com.grocery.groceryshop.controller;
 import com.github.pagehelper.PageHelper;
 import com.grocery.groceryshop.base.CommonPageInfo;
 import com.grocery.groceryshop.base.CommonResult;
+import com.grocery.groceryshop.base.CustomerException;
 import com.grocery.groceryshop.base.req.LoginReq;
 import com.grocery.groceryshop.entity.Commodity;
 import com.grocery.groceryshop.mapper.CommodityMapper;
@@ -36,7 +37,8 @@ public class LoginController {
   @GetMapping(value = "userOne")
   public CommonResult<Commodity> userOne() {
     Commodity info = commodityMapper.selectByPrimaryKey(1L);
-    return CommonResult.success(info);
+    // return CommonResult.success(info);
+    throw new CustomerException("200", "测试");
   }
 
   @PostMapping(value = "login")

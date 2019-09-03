@@ -48,4 +48,12 @@ public class ExceptionControllerAdvice {
     response.setStatus(HttpStatus.BAD_REQUEST.value());
     return CommonResult.error(e.getMessage());
   }
+
+  @ExceptionHandler(CustomerException.class)
+  public CommonResult CustomerExceptionHandler(
+      final CustomerException e, HttpServletResponse response) {
+    log.info("进入 CustomerException 异常");
+    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+    return CommonResult.error(e.getMessage());
+  }
 }
