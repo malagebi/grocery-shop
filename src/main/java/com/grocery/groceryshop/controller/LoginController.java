@@ -45,4 +45,6 @@ public class LoginController {
   public CommonResult login(@Validated LoginReq req) {
     return CommonResult.success();
   }
+
+  public static void main(String[] args) {}
 }

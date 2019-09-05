@@ -14,20 +14,19 @@ import java.util.List;
 @Configuration
 public class FastJsonConfiguration {
 
-    @Bean
-    public HttpMessageConverters configureMessageConverters() {
-        FastJsonHttpMessageConverter fastConverter = new FastJsonHttpMessageConverter();
-        FastJsonConfig fastJsonConfig = new FastJsonConfig();
-        fastJsonConfig.setSerializerFeatures(
-                //是否格式化返回Json
-                SerializerFeature.PrettyFormat
-        );
-        //处理中文乱码问题
-        List<MediaType> fastMediaTypes = new ArrayList<>();
-        fastMediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
-        fastConverter.setSupportedMediaTypes(fastMediaTypes);
-        fastConverter.setFastJsonConfig(fastJsonConfig);
-        return new HttpMessageConverters(fastConverter);
-    }
-
+  @Bean
+  public HttpMessageConverters fastJsonHttpMessageConverters() {
+    FastJsonHttpMessageConverter fastConverter = new FastJsonHttpMessageConverter();
+    FastJsonConfig fastJsonConfig = new FastJsonConfig();
+    fastJsonConfig.setSerializerFeatures(
+        // 是否格式化返回Json
+        SerializerFeature.PrettyFormat);
+    // 处理中文乱码问题
+    List<MediaType> fastMediaTypes = new ArrayList<>();
+    fastMediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
+    fastMediaTypes.add(MediaType.TEXT_HTML);
+    fastConverter.setSupportedMediaTypes(fastMediaTypes);
+    fastConverter.setFastJsonConfig(fastJsonConfig);
+    return new HttpMessageConverters(fastConverter);
+  }
 }
