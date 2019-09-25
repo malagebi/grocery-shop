@@ -24,7 +24,7 @@ public class FastJsonConfiguration {
     // 处理中文乱码问题
     List<MediaType> fastMediaTypes = new ArrayList<>();
     fastMediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
-    fastMediaTypes.add(MediaType.TEXT_HTML);
+    //fastMediaTypes.add(MediaType.TEXT_HTML);
     fastConverter.setSupportedMediaTypes(fastMediaTypes);
     fastConverter.setFastJsonConfig(fastJsonConfig);
     return new HttpMessageConverters(fastConverter);
