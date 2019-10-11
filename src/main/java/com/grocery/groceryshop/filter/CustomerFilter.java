@@ -1,5 +1,6 @@
 package com.grocery.groceryshop.filter;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.*;
@@ -11,7 +12,8 @@ import java.io.IOException;
 @Slf4j
 public class CustomerFilter implements Filter {
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
+  @SneakyThrows
+  public void init(FilterConfig filterConfig) {
     log.info("customerFilter  init ................");
   }
 

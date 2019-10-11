@@ -1,6 +1,12 @@
 package com.grocery.groceryshop.controller;
 
+import cn.hutool.captcha.CaptchaUtil;
+import cn.hutool.captcha.ShearCaptcha;
+import cn.hutool.core.img.ImgUtil;
+import cn.hutool.extra.qrcode.QrCodeUtil;
+import cn.hutool.extra.qrcode.QrConfig;
 import com.github.pagehelper.PageHelper;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.grocery.groceryshop.base.CommonPageInfo;
 import com.grocery.groceryshop.base.CommonResult;
 import com.grocery.groceryshop.base.CustomerException;
@@ -17,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 @RestController(value = "/")
@@ -37,7 +44,7 @@ public class LoginController {
   @GetMapping(value = "userOne")
   public CommonResult<Commodity> userOne() {
     Commodity info = commodityMapper.selectByPrimaryKey(1L);
-    // return CommonResult.success(info);
+
     throw new CustomerException("200", "测试");
   }
 
@@ -46,4 +53,19 @@ public class LoginController {
     return CommonResult.success();
   }
 
+  @GetMapping(value = "qrCode")
+  public String qrCode(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    QrConfig config = new QrConfig();
+    config.setErrorCorrection(ErrorCorrectionLevel.H);
+    BufferedImage bufferedImage = QrCodeUtil.generate("https://hutool.cn/", config);
+    return "data:image/png;base64," + ImgUtil.toBase64(bufferedImage, ImgUtil.IMAGE_TYPE_PNG);
+  }
+
+  @GetMapping("/getImage")
+  public void getImage(HttpServletResponse response) throws Exception {
+    ShearCaptcha captcha = CaptchaUtil.createShearCaptcha(400, 100, 4, 4);
+    System.out.println(captcha.getCode());
+    captcha.write(response.getOutputStream());
+    response.getOutputStream().close();
+  }
 }
