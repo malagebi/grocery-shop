@@ -11,15 +11,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/trainTicket")
 public class TrainTicketController {
 
-  @Autowired private TrainTicketService trainTicketService;
+    @Autowired
+    private TrainTicketService trainTicketService;
 
-  @GetMapping("/captcha-image64")
-  public CommonResult getCaptchaCode() {
-    return CommonResult.success(trainTicketService.getCaptchaImage64());
-  }
+    @GetMapping("/captcha-image64")
+    public CommonResult getCaptchaCode() {
+        return CommonResult.success(trainTicketService.getCaptchaImage64());
+    }
 
-  @GetMapping("/ticketSearch")
-  public CommonResult ticketSearch() {
-    return CommonResult.success(trainTicketService.getTicketList());
-  }
+    @GetMapping(value = "/ticketSearch")
+    public CommonResult ticketSearch() {
+        return CommonResult.success(trainTicketService.getTicketList());
+    }
 }

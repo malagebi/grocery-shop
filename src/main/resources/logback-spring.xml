@@ -19,10 +19,9 @@
         </encoder>
     </appender>
 
-    <appender name="debuglog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/log.log</file>
+    <appender name="all-log" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <FileNamePattern>logs/log-%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <FileNamePattern>logs/all-%d{yyyy-MM-dd}.%i.log</FileNamePattern>
             <MaxHistory>10</MaxHistory>
             <maxFileSize>20MB</maxFileSize>
             <totalSizeCap>2GB</totalSizeCap>
@@ -31,32 +30,16 @@
             <pattern>[%-5level] %d{HH:mm:ss.SSS} [%thread] %logger{36} - %msg%n</pattern>
             <charset>utf8</charset>
         </encoder>
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>debug</level>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>DENY</onMismatch>
-        </filter>
-    </appender>
-
-    <appender name="warnlog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/warn.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>logs/warn-%d{yyyy-MM-dd}.log</FileNamePattern>
-            <MaxHistory>10</MaxHistory>
-        </rollingPolicy>
-        <encoder>
-            <pattern>[%-5level] %d{HH:mm:ss.SSS} [%thread] %logger{36} - %msg%n</pattern>
-            <charset>utf8</charset>
-        </encoder>
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>warn</level>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>DENY</onMismatch>
-        </filter>
     </appender>
 
     <appender name="errorlog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/error.log</file>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>error</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <FileNamePattern>logs/error-%d{yyyy-MM-dd}.log</FileNamePattern>
             <MaxHistory>10</MaxHistory>
@@ -65,22 +48,16 @@
             <pattern>[%-5level] %d{HH:mm:ss.SSS} [%thread] %logger{36} - %msg%n</pattern>
             <charset>utf8</charset>
         </encoder>
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>error</level>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>DENY</onMismatch>
-        </filter>
+
     </appender>
 
 
     <logger name="com.grocery.groceryshop.mapper" level="DEBUG"></logger>
 
 
-
     <root level="info">
         <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="debuglog"/>
-        <appender-ref ref="warnlog"/>
+        <appender-ref ref="all-log"/>
         <appender-ref ref="errorlog"/>
     </root>
 
