@@ -1,64 +1,149 @@
-<?xml version="1.0" encoding="utf-8"?>
-<configuration>
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Logback 配置：
+   - 通过 <springProfile> 区分 dev / prod
+   - 控制台彩色输出（dev），生产纯文本
+   - 文件按 "天 + 单文件大小" 滚动，分 all / error / sql 三类
+   - 文件 appender 统一用 AsyncAppender 包一层，避免阻塞业务线程
+   - 日志格式带 MDC traceId，便于跨线程串联一次请求
+-->
+<configuration scan="true" scanPeriod="30 seconds">
 
-    <!-- 彩色日志 -->
-    <!-- 彩色日志依赖的渲染类 -->
-    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+    <!-- ========== 全局变量 ========== -->
+    <property name="LOG_PATH" value="${LOG_PATH:-logs}"/>
+    <property name="APP_NAME" value="grocery-shop"/>
+
+    <!-- Spring Boot 提供的彩色渲染类（仅控制台使用） -->
+    <conversionRule conversionWord="clr"
+                    converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
     <conversionRule conversionWord="wex"
                     converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
     <conversionRule conversionWord="wEx"
                     converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
-    <!-- 彩色日志格式 -->
+
+    <!-- 控制台彩色 pattern -->
     <property name="CONSOLE_LOG_PATTERN"
-              value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
-    <!-- Console 输出设置 -->
+              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr([%X{traceId:-}]){yellow} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"/>
+
+    <!-- 文件 pattern（无颜色，含 traceId） -->
+    <property name="FILE_LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level ${PID:- } --- [%thread] [%X{traceId:-}] %logger{50} : %msg%n%wEx"/>
+
+    <!-- ========== Console ========== -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>${CONSOLE_LOG_PATTERN}</pattern>
-            <charset>utf8</charset>
+            <charset>UTF-8</charset>
         </encoder>
     </appender>
 
-    <appender name="all-log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- ========== all-log：所有 INFO 以上日志 ========== -->
+    <appender name="ALL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}-all.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <FileNamePattern>logs/all-%d{yyyy-MM-dd}.%i.log</FileNamePattern>
-            <MaxHistory>10</MaxHistory>
-            <maxFileSize>20MB</maxFileSize>
-            <totalSizeCap>2GB</totalSizeCap>
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-all.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>5GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>[%-5level] %d{HH:mm:ss.SSS} [%thread] %logger{36} - %msg%n</pattern>
-            <charset>utf8</charset>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
         </encoder>
     </appender>
 
-    <appender name="errorlog" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/error.log</file>
+    <!-- ========== error-log：只收集 ERROR ========== -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}-error.log</file>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>error</level>
+            <level>ERROR</level>
             <onMatch>ACCEPT</onMatch>
             <onMismatch>DENY</onMismatch>
         </filter>
-
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>logs/error-%d{yyyy-MM-dd}.log</FileNamePattern>
-            <MaxHistory>10</MaxHistory>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>20MB</maxFileSize>
+            <maxHistory>60</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>[%-5level] %d{HH:mm:ss.SSS} [%thread] %logger{36} - %msg%n</pattern>
-            <charset>utf8</charset>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
         </encoder>
-
     </appender>
 
+    <!-- ========== sql-log：MyBatis 执行 SQL ========== -->
+    <appender name="SQL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}-sql.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-sql.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
 
-    <logger name="com.grocery.groceryshop.mapper" level="DEBUG"></logger>
+    <!-- ========== Async 包装：文件 appender 全部异步化 ========== -->
+    <appender name="ASYNC_ALL" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>1024</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="ALL_FILE"/>
+    </appender>
+    <appender name="ASYNC_ERROR" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>512</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="ERROR_FILE"/>
+    </appender>
+    <appender name="ASYNC_SQL" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>1024</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="SQL_FILE"/>
+    </appender>
 
-
-    <root level="info">
+    <!-- ========== Logger ==========
+         MyBatis 的 mapper 包打 DEBUG，仅写入 SQL 文件，additivity=false 防止再串到 all-log -->
+    <logger name="com.grocery.groceryshop.mapper" level="DEBUG" additivity="false">
+        <appender-ref ref="ASYNC_SQL"/>
         <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="all-log"/>
-        <appender-ref ref="errorlog"/>
-    </root>
+    </logger>
+
+    <!-- 第三方框架降噪 -->
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.apache" level="WARN"/>
+    <logger name="com.alibaba.druid" level="WARN"/>
+    <logger name="io.netty" level="INFO"/>
+    <logger name="springfox" level="WARN"/>
+
+    <!-- ========== 按 profile 分环境装配 root ========== -->
+    <springProfile name="dev">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_ALL"/>
+            <appender-ref ref="ASYNC_ERROR"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="ASYNC_ALL"/>
+            <appender-ref ref="ASYNC_ERROR"/>
+        </root>
+    </springProfile>
+
+    <!-- 未指定 profile 时的兜底（例如直接跑测试） -->
+    <springProfile name="!dev &amp; !prod">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_ALL"/>
+            <appender-ref ref="ASYNC_ERROR"/>
+        </root>
+    </springProfile>
 
 </configuration>
