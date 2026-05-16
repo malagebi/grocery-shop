@@ -3,8 +3,9 @@ package com.grocery.groceryshop.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.ReferenceCountUtil;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 /**
@@ -15,34 +16,19 @@ public class FirstServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         System.out.println(new Date() + ": 服务器写出数据-------------");
-        // 1. 获取数据
-        ByteBuf buffer = getByteBuf(ctx);
-
-        // 2. 写数据
-        ctx.channel().writeAndFlush(buffer);
+        ctx.channel().writeAndFlush(getByteBuf(ctx));
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf byteBuf = (ByteBuf) msg;
-
-        System.out.println(new Date() + ": 服务端读到数据 -> " + byteBuf.toString(Charset.forName("utf-8")));
-//        System.out.println(new Date() + ": 服务端写出数据");
-//        ByteBuf out = getByteBuf(ctx);
-//        ctx.channel().writeAndFlush(out);
+        System.out.println(new Date() + ": 服务端读到数据 -> " + byteBuf.toString(StandardCharsets.UTF_8));
+        ReferenceCountUtil.release(msg);
     }
 
-
     private ByteBuf getByteBuf(ChannelHandlerContext ctx) {
-        // 1. 获取二进制抽象 ByteBuf
         ByteBuf buffer = ctx.alloc().buffer();
-
-        // 2. 准备数据，指定字符串的字符集为 utf-8
-        byte[] bytes = "你好，闪电侠!".getBytes(Charset.forName("utf-8"));
-
-        // 3. 填充数据到 ByteBuf
-        buffer.writeBytes(bytes);
-
+        buffer.writeBytes("你好，闪电侠!".getBytes(StandardCharsets.UTF_8));
         return buffer;
     }
 }

@@ -24,9 +24,9 @@ public class MyFutureTask {
         long start = System.currentTimeMillis();
         Future<Integer> n = executor.submit(() -> test());
         Future<Integer> n1 = executor.submit(() -> test());
-        long end = System.currentTimeMillis();
         System.out.println(n.get());
         System.out.println(n1.get());
+        long end = System.currentTimeMillis();
         System.out.println(end - start);
     }
 
