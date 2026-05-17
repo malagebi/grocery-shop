@@ -4,10 +4,14 @@ import com.grocery.groceryshop.base.CommonPageInfo;
 import com.grocery.groceryshop.base.CustomerException;
 import com.grocery.groceryshop.base.OrderErrorCode;
 import com.grocery.groceryshop.base.req.OrderCreateReq;
+import com.grocery.groceryshop.base.req.OrderListReq;
 import com.grocery.groceryshop.base.req.OrderUpdateReq;
 import com.grocery.groceryshop.entity.Order;
+import com.grocery.groceryshop.enums.OrderStatus;
 import com.grocery.groceryshop.service.OrderService;
+import com.grocery.groceryshop.vo.OrderVO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -23,18 +27,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class OrderServiceImpl implements OrderService {
 
-    private static final Integer STATUS_UNPAID = 1;
-    private static final Integer STATUS_PAID = 2;
-    private static final Integer STATUS_SHIPPED = 3;
-    private static final Integer STATUS_COMPLETED = 4;
-    private static final Integer STATUS_CANCELLED = 5;
-
     /** Mock 的订单存储，替代 OrderMapper */
     private final Map<Long, Order> orderStore = new ConcurrentHashMap<>();
     private final AtomicLong idGenerator = new AtomicLong(1L);
 
     @Override
-    public Order createOrder(OrderCreateReq req) {
+    public OrderVO createOrder(OrderCreateReq req) {
         Long id = idGenerator.getAndIncrement();
         Date now = new Date();
         Order order = new Order();
@@ -45,24 +43,25 @@ public class OrderServiceImpl implements OrderService {
         order.setCommodityName(req.getCommodityName());
         order.setQuantity(req.getQuantity());
         order.setTotalAmount(req.getTotalAmount());
-        order.setStatus(STATUS_UNPAID);
+        order.setStatus(OrderStatus.UNPAID.getCode());
         order.setCreateTime(now);
         order.setUpdateTime(now);
         orderStore.put(id, order);
         log.info("[创建订单] id={}, orderNo={}", id, order.getOrderNo());
-        return order;
+        return toVO(order);
     }
 
     @Override
-    public Order updateOrder(OrderUpdateReq req) {
+    public OrderVO updateOrder(OrderUpdateReq req) {
         Order order = orderStore.get(req.getId());
         if (order == null) {
             throw new CustomerException(OrderErrorCode.ORDER_NOT_FOUND);
         }
-        if (Objects.equals(order.getStatus(), STATUS_CANCELLED)) {
+        OrderStatus current = OrderStatus.fromCode(order.getStatus());
+        if (current == OrderStatus.CANCELLED) {
             throw new CustomerException(OrderErrorCode.ORDER_CANCELLED_NOT_MODIFIABLE);
         }
-        if (Objects.equals(order.getStatus(), STATUS_COMPLETED)) {
+        if (current == OrderStatus.COMPLETED) {
             throw new CustomerException(OrderErrorCode.ORDER_COMPLETED_NOT_MODIFIABLE);
         }
         if (req.getQuantity() != null) {
@@ -76,7 +75,7 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setUpdateTime(new Date());
         log.info("[更新订单] id={}", req.getId());
-        return order;
+        return toVO(order);
     }
 
     @Override
@@ -88,18 +87,20 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order getOrder(Long id) {
+    public OrderVO getOrder(Long id) {
         Order order = orderStore.get(id);
         if (order == null) {
             throw new CustomerException(OrderErrorCode.ORDER_NOT_FOUND);
         }
-        return order;
+        return toVO(order);
     }
 
     @Override
-    public CommonPageInfo<Order> listOrder(Integer pageNum, Integer pageSize, Long userId, Integer status) {
-        int page = pageNum == null || pageNum < 1 ? 1 : pageNum;
-        int size = pageSize == null || pageSize < 1 ? 10 : pageSize;
+    public CommonPageInfo<OrderVO> listOrder(OrderListReq req) {
+        int page = req.getPageNum() == null || req.getPageNum() < 1 ? 1 : req.getPageNum();
+        int size = req.getPageSize() == null || req.getPageSize() < 1 ? 10 : req.getPageSize();
+        Long userId = req.getUserId();
+        Integer status = req.getStatus();
 
         List<Order> filtered = orderStore.values().stream()
                 .filter(o -> userId == null || Objects.equals(o.getUserId(), userId))
@@ -110,9 +111,11 @@ public class OrderServiceImpl implements OrderService {
         int total = filtered.size();
         int fromIndex = Math.min((page - 1) * size, total);
         int toIndex = Math.min(fromIndex + size, total);
-        List<Order> pageList = filtered.subList(fromIndex, toIndex);
+        List<OrderVO> pageList = filtered.subList(fromIndex, toIndex).stream()
+                .map(this::toVO)
+                .collect(Collectors.toList());
 
-        CommonPageInfo<Order> result = new CommonPageInfo<>();
+        CommonPageInfo<OrderVO> result = new CommonPageInfo<>();
         result.setPageNum(page);
         result.setPageSize(size);
         result.setTotal(total);
@@ -122,21 +125,28 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order cancelOrder(Long id) {
+    public OrderVO cancelOrder(Long id) {
         Order order = orderStore.get(id);
         if (order == null) {
             throw new CustomerException(OrderErrorCode.ORDER_NOT_FOUND);
         }
-        if (Objects.equals(order.getStatus(), STATUS_CANCELLED)) {
+        OrderStatus current = OrderStatus.fromCode(order.getStatus());
+        if (current == OrderStatus.CANCELLED) {
             throw new CustomerException(OrderErrorCode.ORDER_ALREADY_CANCELLED);
         }
-        if (Objects.equals(order.getStatus(), STATUS_SHIPPED)
-                || Objects.equals(order.getStatus(), STATUS_COMPLETED)) {
+        if (current == OrderStatus.SHIPPED || current == OrderStatus.COMPLETED) {
             throw new CustomerException(OrderErrorCode.ORDER_STATUS_NOT_CANCELLABLE);
         }
-        order.setStatus(STATUS_CANCELLED);
+        order.setStatus(OrderStatus.CANCELLED.getCode());
         order.setUpdateTime(new Date());
         log.info("[取消订单] id={}", id);
-        return order;
+        return toVO(order);
+    }
+
+    private OrderVO toVO(Order order) {
+        OrderVO vo = new OrderVO();
+        BeanUtils.copyProperties(order, vo);
+        vo.setStatusDesc(OrderStatus.descOf(order.getStatus()));
+        return vo;
     }
 }

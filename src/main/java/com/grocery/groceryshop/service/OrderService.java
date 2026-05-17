@@ -2,20 +2,21 @@ package com.grocery.groceryshop.service;
 
 import com.grocery.groceryshop.base.CommonPageInfo;
 import com.grocery.groceryshop.base.req.OrderCreateReq;
+import com.grocery.groceryshop.base.req.OrderListReq;
 import com.grocery.groceryshop.base.req.OrderUpdateReq;
-import com.grocery.groceryshop.entity.Order;
+import com.grocery.groceryshop.vo.OrderVO;
 
 public interface OrderService {
 
-    Order createOrder(OrderCreateReq req);
+    OrderVO createOrder(OrderCreateReq req);
 
-    Order updateOrder(OrderUpdateReq req);
+    OrderVO updateOrder(OrderUpdateReq req);
 
     void deleteOrder(Long id);
 
-    Order getOrder(Long id);
+    OrderVO getOrder(Long id);
 
-    CommonPageInfo<Order> listOrder(Integer pageNum, Integer pageSize, Long userId, Integer status);
+    CommonPageInfo<OrderVO> listOrder(OrderListReq req);
 
-    Order cancelOrder(Long id);
+    OrderVO cancelOrder(Long id);
 }

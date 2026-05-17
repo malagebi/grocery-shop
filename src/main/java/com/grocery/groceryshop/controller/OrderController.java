@@ -3,12 +3,12 @@ package com.grocery.groceryshop.controller;
 import com.grocery.groceryshop.base.CommonPageInfo;
 import com.grocery.groceryshop.base.CommonResult;
 import com.grocery.groceryshop.base.req.OrderCreateReq;
+import com.grocery.groceryshop.base.req.OrderListReq;
 import com.grocery.groceryshop.base.req.OrderUpdateReq;
-import com.grocery.groceryshop.entity.Order;
 import com.grocery.groceryshop.service.OrderService;
+import com.grocery.groceryshop.vo.OrderVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -31,13 +30,13 @@ public class OrderController {
 
     @PostMapping
     @ApiOperation("创建订单")
-    public CommonResult<Order> create(@Validated @RequestBody OrderCreateReq req) {
+    public CommonResult<OrderVO> create(@Validated @RequestBody OrderCreateReq req) {
         return CommonResult.success(orderService.createOrder(req));
     }
 
     @PutMapping
     @ApiOperation("修改订单")
-    public CommonResult<Order> update(@Validated @RequestBody OrderUpdateReq req) {
+    public CommonResult<OrderVO> update(@Validated @RequestBody OrderUpdateReq req) {
         return CommonResult.success(orderService.updateOrder(req));
     }
 
@@ -50,23 +49,19 @@ public class OrderController {
 
     @GetMapping("/{id}")
     @ApiOperation("订单详情")
-    public CommonResult<Order> get(@PathVariable("id") Long id) {
+    public CommonResult<OrderVO> get(@PathVariable("id") Long id) {
         return CommonResult.success(orderService.getOrder(id));
     }
 
-    @GetMapping
+    @PostMapping("/list")
     @ApiOperation("订单分页查询")
-    public CommonResult<CommonPageInfo<Order>> list(
-            @ApiParam("页码") @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
-            @ApiParam("每页数量") @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
-            @ApiParam("用户ID") @RequestParam(value = "userId", required = false) Long userId,
-            @ApiParam("订单状态") @RequestParam(value = "status", required = false) Integer status) {
-        return CommonResult.success(orderService.listOrder(pageNum, pageSize, userId, status));
+    public CommonResult<CommonPageInfo<OrderVO>> list(@RequestBody OrderListReq req) {
+        return CommonResult.success(orderService.listOrder(req));
     }
 
     @PostMapping("/cancel/{id}")
     @ApiOperation("取消订单")
-    public CommonResult<Order> cancel(@PathVariable("id") Long id) {
+    public CommonResult<OrderVO> cancel(@PathVariable("id") Long id) {
         return CommonResult.success(orderService.cancelOrder(id));
     }
 }
