@@ -43,7 +43,7 @@ public class OrderController {
 
     @DeleteMapping("/{id}")
     @ApiOperation("删除订单")
-    public CommonResult delete(@PathVariable("id") Long id) {
+    public CommonResult<Void> delete(@PathVariable("id") Long id) {
         orderService.deleteOrder(id);
         return CommonResult.success();
     }
@@ -56,13 +56,12 @@ public class OrderController {
 
     @GetMapping
     @ApiOperation("订单分页查询")
-    public CommonResult list(
+    public CommonResult<CommonPageInfo<Order>> list(
             @ApiParam("页码") @RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
             @ApiParam("每页数量") @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize,
             @ApiParam("用户ID") @RequestParam(value = "userId", required = false) Long userId,
             @ApiParam("订单状态") @RequestParam(value = "status", required = false) Integer status) {
-        CommonPageInfo<Order> page = orderService.listOrder(pageNum, pageSize, userId, status);
-        return CommonResult.success(page);
+        return CommonResult.success(orderService.listOrder(pageNum, pageSize, userId, status));
     }
 
     @PostMapping("/cancel/{id}")
