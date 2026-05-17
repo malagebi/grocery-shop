@@ -5,7 +5,11 @@
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
       "Bash(git commit *)",
-      "Bash(./mvnw.cmd -q -DskipTests compile)"
+      "Bash(./mvnw.cmd -q -DskipTests compile)",
+      "Bash(where java *)",
+      "Bash(java -XshowSettings:properties -version)",
+      "Bash(JAVA_HOME=\"C:\\\\Program Files\\\\Java\\\\jdk-17\" ./mvnw.cmd *)",
+      "Bash(git rm *)"
     ]
   }
 }
