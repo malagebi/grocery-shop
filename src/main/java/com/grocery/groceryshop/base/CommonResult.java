@@ -57,6 +57,13 @@ public class CommonResult<T> {
     return result;
   }
 
+  public static CommonResult error(String code, String message) {
+    CommonResult result = new CommonResult();
+    result.setCode(code);
+    result.setMessage(message);
+    return result;
+  }
+
   public String getMessage() {
     return message;
   }

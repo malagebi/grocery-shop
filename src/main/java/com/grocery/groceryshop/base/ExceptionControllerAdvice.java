@@ -54,6 +54,6 @@ public class ExceptionControllerAdvice {
       final CustomerException e, HttpServletResponse response) {
     log.info("进入 CustomerException 异常");
     response.setStatus(HttpStatus.UNAUTHORIZED.value());
-    return CommonResult.error(e.getMessage());
+    return CommonResult.error(e.getCode(), e.getMessage());
   }
 }

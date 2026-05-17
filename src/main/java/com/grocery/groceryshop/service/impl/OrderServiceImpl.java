@@ -2,6 +2,7 @@ package com.grocery.groceryshop.service.impl;
 
 import com.grocery.groceryshop.base.CommonPageInfo;
 import com.grocery.groceryshop.base.CustomerException;
+import com.grocery.groceryshop.base.OrderErrorCode;
 import com.grocery.groceryshop.base.req.OrderCreateReq;
 import com.grocery.groceryshop.base.req.OrderUpdateReq;
 import com.grocery.groceryshop.entity.Order;
@@ -56,13 +57,13 @@ public class OrderServiceImpl implements OrderService {
     public Order updateOrder(OrderUpdateReq req) {
         Order order = orderStore.get(req.getId());
         if (order == null) {
-            throw new CustomerException("404", "订单不存在");
+            throw new CustomerException(OrderErrorCode.ORDER_NOT_FOUND);
         }
         if (Objects.equals(order.getStatus(), STATUS_CANCELLED)) {
-            throw new CustomerException("400", "已取消的订单不可修改");
+            throw new CustomerException(OrderErrorCode.ORDER_CANCELLED_NOT_MODIFIABLE);
         }
         if (Objects.equals(order.getStatus(), STATUS_COMPLETED)) {
-            throw new CustomerException("400", "已完成的订单不可修改");
+            throw new CustomerException(OrderErrorCode.ORDER_COMPLETED_NOT_MODIFIABLE);
         }
         if (req.getQuantity() != null) {
             order.setQuantity(req.getQuantity());
@@ -81,7 +82,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void deleteOrder(Long id) {
         if (orderStore.remove(id) == null) {
-            throw new CustomerException("404", "订单不存在");
+            throw new CustomerException(OrderErrorCode.ORDER_NOT_FOUND);
         }
         log.info("[删除订单] id={}", id);
     }
@@ -90,7 +91,7 @@ public class OrderServiceImpl implements OrderService {
     public Order getOrder(Long id) {
         Order order = orderStore.get(id);
         if (order == null) {
-            throw new CustomerException("404", "订单不存在");
+            throw new CustomerException(OrderErrorCode.ORDER_NOT_FOUND);
         }
         return order;
     }
@@ -124,14 +125,14 @@ public class OrderServiceImpl implements OrderService {
     public Order cancelOrder(Long id) {
         Order order = orderStore.get(id);
         if (order == null) {
-            throw new CustomerException("404", "订单不存在");
+            throw new CustomerException(OrderErrorCode.ORDER_NOT_FOUND);
         }
         if (Objects.equals(order.getStatus(), STATUS_CANCELLED)) {
-            throw new CustomerException("400", "订单已取消，请勿重复操作");
+            throw new CustomerException(OrderErrorCode.ORDER_ALREADY_CANCELLED);
         }
         if (Objects.equals(order.getStatus(), STATUS_SHIPPED)
                 || Objects.equals(order.getStatus(), STATUS_COMPLETED)) {
-            throw new CustomerException("400", "当前订单状态不允许取消");
+            throw new CustomerException(OrderErrorCode.ORDER_STATUS_NOT_CANCELLABLE);
         }
         order.setStatus(STATUS_CANCELLED);
         order.setUpdateTime(new Date());
