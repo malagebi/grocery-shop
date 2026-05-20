@@ -38,10 +38,10 @@ public class LoginController {
 
   @GetMapping(value = "user")
   @ApiOperation(value = "用户列表")
-  public CommonResult userList(HttpServletRequest request, HttpServletResponse response) {
+  public CommonResult<CommonPageInfo<Commodity>> userList(HttpServletRequest request, HttpServletResponse response) {
     PageHelper.startPage(1, 5);
     List<Commodity> list = commodityMapper.selectAll();
-    CommonPageInfo baseInfo = CommonPageInfo.build(list);
+    CommonPageInfo<Commodity> baseInfo = CommonPageInfo.build(list);
     return CommonResult.success(baseInfo);
   }
 
@@ -53,7 +53,7 @@ public class LoginController {
   }
 
   @PostMapping(value = "login")
-  public CommonResult login(@Validated LoginReq req) {
+  public CommonResult<Void> login(@Validated LoginReq req) {
     return CommonResult.success();
   }
 
