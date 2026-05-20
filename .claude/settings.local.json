@@ -15,7 +15,9 @@
       "PowerShell(Get-StoredCredential *)",
       "Bash(cd /d D:\\\\ideaProjects\\\\grocery-shop)",
       "Bash(mvnw.cmd clean *)",
-      "PowerShell(git *)"
+      "PowerShell(git *)",
+      "Bash(mvnw.cmd compile *)",
+      "Bash(gh pr *)"
     ]
   }
 }
