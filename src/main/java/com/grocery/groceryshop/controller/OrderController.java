@@ -53,9 +53,9 @@ public class OrderController {
         return CommonResult.success(orderService.getOrder(id));
     }
 
-    @PostMapping("/list")
+    @GetMapping("/list")
     @ApiOperation("订单分页查询")
-    public CommonResult<CommonPageInfo<OrderVO>> list(@RequestBody OrderListReq req) {
+    public CommonResult<CommonPageInfo<OrderVO>> list(OrderListReq req) {
         return CommonResult.success(orderService.listOrder(req));
     }
 

@@ -18,7 +18,10 @@ public class CommonResult<T> {
   private T data;
 
   public static <T> CommonResult<T> success() {
-    return new CommonResult<>();
+    CommonResult<T> result = new CommonResult<>();
+    result.setCode("ok");
+    result.setMessage("成功");
+    return result;
   }
 
   public static <T> CommonResult<T> success(T data) {

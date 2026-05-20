@@ -73,7 +73,7 @@ public class TrainTicketServiceImpl implements TrainTicketService {
             stb.append(strArrays[30]).append("\t");
             stb.append(strArrays[31]).append("\t");
             stb.append(strArrays[32]).append("\t");
-            System.out.println(stb);
+            log.info("[车票信息] {}", stb);
             respList.add(resp);
         }
         return respList;

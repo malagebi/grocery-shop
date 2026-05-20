@@ -8,6 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @EnableFeignClients
 @ServletComponentScan
+// 排除 Spring Boot 原生数据源自动配置，由 Druid 的 DruidDataSourceAutoConfigure 接管
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
 public class GroceryShopApplication {
 

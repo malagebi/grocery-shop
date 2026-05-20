@@ -29,6 +29,8 @@ public class OrderServiceImpl implements OrderService {
 
     /** Mock 的订单存储，替代 OrderMapper */
     private final Map<Long, Order> orderStore = new ConcurrentHashMap<>();
+    /** orderNo -> id 二级索引，供支付模块按单号快速查询 */
+    private final Map<String, Long> orderNoIndex = new ConcurrentHashMap<>();
     private final AtomicLong idGenerator = new AtomicLong(1L);
 
     @Override
@@ -47,6 +49,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCreateTime(now);
         order.setUpdateTime(now);
         orderStore.put(id, order);
+        orderNoIndex.put(order.getOrderNo(), id);
         log.info("[创建订单] id={}, orderNo={}", id, order.getOrderNo());
         return toVO(order);
     }
@@ -80,9 +83,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void deleteOrder(Long id) {
-        if (orderStore.remove(id) == null) {
+        Order removed = orderStore.remove(id);
+        if (removed == null) {
             throw new CustomerException(OrderErrorCode.ORDER_NOT_FOUND);
         }
+        orderNoIndex.remove(removed.getOrderNo());
         log.info("[删除订单] id={}", id);
     }
 
@@ -97,8 +102,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public CommonPageInfo<OrderVO> listOrder(OrderListReq req) {
-        int page = req.getPageNum() == null || req.getPageNum() < 1 ? 1 : req.getPageNum();
-        int size = req.getPageSize() == null || req.getPageSize() < 1 ? 10 : req.getPageSize();
+        int page = req.getPageNum();
+        int size = req.getPageSize();
         Long userId = req.getUserId();
         Integer status = req.getStatus();
 
@@ -141,6 +146,36 @@ public class OrderServiceImpl implements OrderService {
         order.setUpdateTime(new Date());
         log.info("[取消订单] id={}", id);
         return toVO(order);
+    }
+
+    @Override
+    public OrderVO findByOrderNo(String orderNo) {
+        Long id = orderNoIndex.get(orderNo);
+        if (id == null) return null;
+        Order order = orderStore.get(id);
+        return order == null ? null : toVO(order);
+    }
+
+    @Override
+    public void markOrderPaid(String orderNo) {
+        Long id = orderNoIndex.get(orderNo);
+        if (id == null) return;
+        Order order = orderStore.get(id);
+        if (order == null) return;
+        order.setStatus(OrderStatus.PAID.getCode());
+        order.setUpdateTime(new Date());
+        log.info("[订单已支付] orderNo={}", orderNo);
+    }
+
+    @Override
+    public void markOrderRefunded(String orderNo) {
+        Long id = orderNoIndex.get(orderNo);
+        if (id == null) return;
+        Order order = orderStore.get(id);
+        if (order == null) return;
+        order.setStatus(OrderStatus.REFUNDED.getCode());
+        order.setUpdateTime(new Date());
+        log.info("[订单已退款] orderNo={}", orderNo);
     }
 
     private OrderVO toVO(Order order) {

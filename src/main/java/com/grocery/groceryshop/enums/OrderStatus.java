@@ -9,7 +9,8 @@ public enum OrderStatus {
     PAID(2, "已支付"),
     SHIPPED(3, "已发货"),
     COMPLETED(4, "已完成"),
-    CANCELLED(5, "已取消");
+    CANCELLED(5, "已取消"),
+    REFUNDED(6, "已退款");
 
     private final Integer code;
     private final String desc;
