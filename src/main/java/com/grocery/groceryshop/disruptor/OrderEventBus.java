@@ -10,14 +10,15 @@ import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
 import java.math.BigDecimal;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -32,20 +33,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class OrderEventBus implements InitializingBean, DisposableBean {
+public class OrderEventBus {
 
     /** RingBuffer 大小，必须是 2 的幂 */
     private static final int RING_BUFFER_SIZE = 1024;
 
     private final OrderAuditLogHandler auditLogHandler;
+    @Getter
     private final OrderStatHandler statHandler;
     private final OrderNotifyHandler notifyHandler;
 
     private Disruptor<OrderEvent> disruptor;
     private RingBuffer<OrderEvent> ringBuffer;
 
-    @Override
-    public void afterPropertiesSet() {
+    @PostConstruct
+    public void init() {
         ThreadFactory threadFactory = new ThreadFactory() {
             private final AtomicInteger idx = new AtomicInteger(1);
             @Override
@@ -70,7 +72,7 @@ public class OrderEventBus implements InitializingBean, DisposableBean {
         log.info("[OrderEventBus] Disruptor 已启动，RingBuffer 容量={}", RING_BUFFER_SIZE);
     }
 
-    @Override
+    @PreDestroy
     public void destroy() {
         if (disruptor != null) {
             disruptor.shutdown();
@@ -97,7 +99,4 @@ public class OrderEventBus implements InitializingBean, DisposableBean {
         log.debug("[OrderEventBus] 已发布 seq={} orderNo={} action={}", sequence, orderNo, eventType);
     }
 
-    public OrderStatHandler getStatHandler() {
-        return statHandler;
-    }
 }
