@@ -48,13 +48,8 @@ public class OrderEventBus {
 
     @PostConstruct
     public void init() {
-        ThreadFactory threadFactory = new ThreadFactory() {
-            private final AtomicInteger idx = new AtomicInteger(1);
-            @Override
-            public Thread newThread(Runnable r) {
-                return new Thread(r, "order-event-worker-" + idx.getAndIncrement());
-            }
-        };
+        AtomicInteger idx = new AtomicInteger(1);
+        ThreadFactory threadFactory = r -> new Thread(r, "order-event-worker-" + idx.getAndIncrement());
 
         disruptor = new Disruptor<>(
                 new OrderEventFactory(),

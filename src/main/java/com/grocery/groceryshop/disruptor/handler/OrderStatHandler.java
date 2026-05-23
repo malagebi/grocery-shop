@@ -3,6 +3,7 @@ package com.grocery.groceryshop.disruptor.handler;
 import com.grocery.groceryshop.disruptor.event.OrderEvent;
 import com.grocery.groceryshop.disruptor.event.OrderEventType;
 import com.lmax.disruptor.EventHandler;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * 第二级消费者（与 NotifyHandler 并行）：按事件类型累计计数。
  * 单线程消费，AtomicLong 仅供外部线程安全读取。
  */
+@Getter
 @Slf4j
 @Component
 public class OrderStatHandler implements EventHandler<OrderEvent> {
@@ -32,7 +34,4 @@ public class OrderStatHandler implements EventHandler<OrderEvent> {
         log.info("[统计] action={} 累计={}", event.getEventType().getDesc(), count);
     }
 
-    public Map<OrderEventType, AtomicLong> getCounters() {
-        return counters;
-    }
 }
