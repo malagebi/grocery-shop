@@ -1,17 +1,26 @@
 package com.grocery.groceryshop.base;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.validation.ConstraintViolation;
@@ -100,15 +109,77 @@ public class ExceptionControllerAdvice {
                 .body(CommonResult.error("415", "不支持的 Content-Type: " + ex.getContentType()));
     }
 
-    /** 兜底：未预期的运行时异常 */
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<CommonResult<Void>> runtimeExceptionHandler(final RuntimeException e) {
-        log.error("未预期的运行时异常", e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(CommonResult.error("500", "服务器内部错误，请稍后重试"));
+    /** 400：请求体 JSON 格式错误或无法解析 */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<CommonResult<Void>> messageNotReadableHandler(final HttpMessageNotReadableException ex) {
+        log.warn("请求体解析失败: {}", ex.getMessage());
+        return ResponseEntity.badRequest().body(CommonResult.error("请求体格式错误，请检查 JSON 是否合法"));
     }
 
-    /** 兜底：未预期的受检异常 */
+    /** 406：客户端 Accept 头与服务端响应类型不匹配 */
+    @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
+    public ResponseEntity<CommonResult<Void>> mediaTypeNotAcceptableHandler(final HttpMediaTypeNotAcceptableException ex) {
+        log.warn("响应类型不可接受: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                .body(CommonResult.error("406", "服务端无法生成客户端 Accept 头所要求的响应类型"));
+    }
+
+    /** 400：缺少必填请求头 */
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    public ResponseEntity<CommonResult<Void>> missingRequestHeaderHandler(final MissingRequestHeaderException ex) {
+        String message = "缺少必填请求头: " + ex.getHeaderName();
+        log.warn(message);
+        return ResponseEntity.badRequest().body(CommonResult.error(message));
+    }
+
+    /** 400：路径变量缺失 */
+    @ExceptionHandler(MissingPathVariableException.class)
+    public ResponseEntity<CommonResult<Void>> missingPathVariableHandler(final MissingPathVariableException ex) {
+        String message = "路径变量缺失: " + ex.getVariableName();
+        log.warn(message);
+        return ResponseEntity.badRequest().body(CommonResult.error(message));
+    }
+
+    /** 413：上传文件超过大小限制 */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<CommonResult<Void>> maxUploadSizeExceededHandler(final MaxUploadSizeExceededException ex) {
+        log.warn("上传文件超限: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                .body(CommonResult.error("413", "上传文件超过大小限制"));
+    }
+
+    /** 400：Multipart 请求解析失败 */
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<CommonResult<Void>> multipartExceptionHandler(final MultipartException ex) {
+        log.warn("Multipart 请求解析失败: {}", ex.getMessage());
+        return ResponseEntity.badRequest().body(CommonResult.error("文件上传请求解析失败"));
+    }
+
+    /** 409：数据库唯一键冲突 */
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<CommonResult<Void>> duplicateKeyHandler(final DuplicateKeyException ex) {
+        log.warn("数据库唯一键冲突: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(CommonResult.error("409", "数据已存在，请勿重复提交"));
+    }
+
+    /** 500：数据库访问异常兜底（须在 DuplicateKeyException 之后声明） */
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<CommonResult<Void>> dataAccessExceptionHandler(final DataAccessException ex) {
+        log.error("数据库访问异常", ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(CommonResult.error("500", "数据库操作失败，请稍后重试"));
+    }
+
+    /** 503：异步请求处理超时 */
+    @ExceptionHandler(AsyncRequestTimeoutException.class)
+    public ResponseEntity<CommonResult<Void>> asyncRequestTimeoutHandler(final AsyncRequestTimeoutException ex) {
+        log.warn("异步请求超时: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(CommonResult.error("503", "请求处理超时，请稍后重试"));
+    }
+
+    /** 兜底：所有未被捕获的异常（含受检与非受检） */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CommonResult<Void>> exceptionHandler(final Exception e) {
         log.error("未预期的异常", e);

@@ -17,7 +17,10 @@
       "Bash(mvnw.cmd clean *)",
       "PowerShell(git *)",
       "Bash(mvnw.cmd compile *)",
-      "Bash(gh pr *)"
+      "Bash(gh pr *)",
+      "PowerShell(.\\\\mvnw.cmd compile -q 2>&1 | Select-Object -Last 20)",
+      "PowerShell(Get-Command *)",
+      "PowerShell($env:JAVA_HOME = \\(Get-ChildItem \"C:\\\\Program Files\\\\Java\" -ErrorAction SilentlyContinue | Select-Object -First 1\\).FullName; if \\(-not $env:JAVA_HOME\\) { $env:JAVA_HOME = \\(Get-ChildItem \"C:\\\\Program Files\\\\Eclipse Adoptium\" -ErrorAction SilentlyContinue | Select-Object -First 1\\).FullName }; Write-Host \"JAVA_HOME=$env:JAVA_HOME\"; .\\\\mvnw.cmd compile -q 2>&1 | Select-Object -Last 20)"
     ]
   }
 }
