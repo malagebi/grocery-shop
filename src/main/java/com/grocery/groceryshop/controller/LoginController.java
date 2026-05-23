@@ -63,11 +63,13 @@ public class LoginController {
   }
 
   @GetMapping(value = "qrCode")
-  public String qrCode(HttpServletRequest request, HttpServletResponse response) throws Exception {
+  @ApiOperation("生成二维码")
+  public CommonResult<String> qrCode(@RequestParam String content) throws Exception {
     QrConfig config = new QrConfig();
     config.setErrorCorrection(ErrorCorrectionLevel.H);
-    BufferedImage bufferedImage = QrCodeUtil.generate("https://hutool.cn/", config);
-    return "data:image/png;base64," + ImgUtil.toBase64(bufferedImage, ImgUtil.IMAGE_TYPE_PNG);
+    BufferedImage bufferedImage = QrCodeUtil.generate(content, config);
+    String base64 = "data:image/png;base64," + ImgUtil.toBase64(bufferedImage, ImgUtil.IMAGE_TYPE_PNG);
+    return CommonResult.success(base64);
   }
 
   @GetMapping("/commodity/export")
