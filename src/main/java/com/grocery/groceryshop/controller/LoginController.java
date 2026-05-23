@@ -20,10 +20,10 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.net.URLEncoder;
@@ -38,11 +38,16 @@ public class LoginController {
 
   @GetMapping(value = "user")
   @ApiOperation(value = "用户列表")
-  public CommonResult<CommonPageInfo<Commodity>> userList(HttpServletRequest request, HttpServletResponse response) {
-    PageHelper.startPage(1, 5);
-    List<Commodity> list = commodityMapper.selectAll();
-    CommonPageInfo<Commodity> baseInfo = CommonPageInfo.build(list);
-    return CommonResult.success(baseInfo);
+  public CommonResult<CommonPageInfo<Commodity>> userList(
+      @RequestParam(defaultValue = "1") int pageNum,
+      @RequestParam(defaultValue = "10") int pageSize) {
+    try {
+      PageHelper.startPage(pageNum, pageSize);
+      List<Commodity> list = commodityMapper.selectAll();
+      return CommonResult.success(CommonPageInfo.build(list));
+    } finally {
+      PageHelper.clearPage();
+    }
   }
 
   @GetMapping(value = "userOne")
