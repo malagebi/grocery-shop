@@ -6,10 +6,13 @@ import com.grocery.groceryshop.base.OrderErrorCode;
 import com.grocery.groceryshop.base.req.OrderCreateReq;
 import com.grocery.groceryshop.base.req.OrderListReq;
 import com.grocery.groceryshop.base.req.OrderUpdateReq;
+import com.grocery.groceryshop.disruptor.OrderEventBus;
+import com.grocery.groceryshop.disruptor.event.OrderEventType;
 import com.grocery.groceryshop.entity.Order;
 import com.grocery.groceryshop.enums.OrderStatus;
 import com.grocery.groceryshop.service.OrderService;
 import com.grocery.groceryshop.vo.OrderVO;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -25,7 +28,10 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
+
+    private final OrderEventBus orderEventBus;
 
     /** Mock 的订单存储，替代 OrderMapper */
     private final Map<Long, Order> orderStore = new ConcurrentHashMap<>();
@@ -51,6 +57,7 @@ public class OrderServiceImpl implements OrderService {
         orderStore.put(id, order);
         orderNoIndex.put(order.getOrderNo(), id);
         log.info("[创建订单] id={}, orderNo={}", id, order.getOrderNo());
+        orderEventBus.publish(order.getOrderNo(), order.getUserId(), OrderEventType.CREATE, order.getTotalAmount());
         return toVO(order);
     }
 
@@ -145,6 +152,7 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(OrderStatus.CANCELLED.getCode());
         order.setUpdateTime(new Date());
         log.info("[取消订单] id={}", id);
+        orderEventBus.publish(order.getOrderNo(), order.getUserId(), OrderEventType.CANCEL, order.getTotalAmount());
         return toVO(order);
     }
 
@@ -165,6 +173,7 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(OrderStatus.PAID.getCode());
         order.setUpdateTime(new Date());
         log.info("[订单已支付] orderNo={}", orderNo);
+        orderEventBus.publish(orderNo, order.getUserId(), OrderEventType.PAY, order.getTotalAmount());
     }
 
     @Override
@@ -176,6 +185,7 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(OrderStatus.REFUNDED.getCode());
         order.setUpdateTime(new Date());
         log.info("[订单已退款] orderNo={}", orderNo);
+        orderEventBus.publish(orderNo, order.getUserId(), OrderEventType.REFUND, order.getTotalAmount());
     }
 
     private OrderVO toVO(Order order) {
