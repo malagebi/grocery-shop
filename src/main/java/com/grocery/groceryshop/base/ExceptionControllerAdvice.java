@@ -17,10 +17,13 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.validation.ConstraintViolation;
@@ -155,6 +158,14 @@ public class ExceptionControllerAdvice {
         return ResponseEntity.badRequest().body(CommonResult.error("文件上传请求解析失败"));
     }
 
+    /** 400：Multipart 请求中某个 Part 缺失（如 file 字段未传） */
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<CommonResult<Void>> missingPartHandler(final MissingServletRequestPartException ex) {
+        String message = "缺少必填文件/表单项: " + ex.getRequestPartName();
+        log.warn(message);
+        return ResponseEntity.badRequest().body(CommonResult.error(message));
+    }
+
     /** 409：数据库唯一键冲突 */
     @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<CommonResult<Void>> duplicateKeyHandler(final DuplicateKeyException ex) {
@@ -171,12 +182,35 @@ public class ExceptionControllerAdvice {
                 .body(CommonResult.error("500", "数据库操作失败，请稍后重试"));
     }
 
+    /** 502：外部 HTTP 服务调用失败（RestTemplate） */
+    @ExceptionHandler(RestClientException.class)
+    public ResponseEntity<CommonResult<Void>> restClientExceptionHandler(final RestClientException ex) {
+        log.error("外部服务调用失败: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                .body(CommonResult.error("502", "外部服务暂时不可用，请稍后重试"));
+    }
+
     /** 503：异步请求处理超时 */
     @ExceptionHandler(AsyncRequestTimeoutException.class)
     public ResponseEntity<CommonResult<Void>> asyncRequestTimeoutHandler(final AsyncRequestTimeoutException ex) {
         log.warn("异步请求超时: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(CommonResult.error("503", "请求处理超时，请稍后重试"));
+    }
+
+    /** 400：Service 层主动抛出的非法参数（IllegalArgumentException） */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<CommonResult<Void>> illegalArgumentHandler(final IllegalArgumentException ex) {
+        log.warn("非法参数: {}", ex.getMessage());
+        return ResponseEntity.badRequest().body(CommonResult.error(ex.getMessage()));
+    }
+
+    /** 按异常携带的 HTTP 状态码返回（Spring MVC 主动抛出的 ResponseStatusException） */
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<CommonResult<Void>> responseStatusHandler(final ResponseStatusException ex) {
+        log.warn("ResponseStatusException: status={}, reason={}", ex.getStatus(), ex.getReason());
+        return ResponseEntity.status(ex.getStatus())
+                .body(CommonResult.error(String.valueOf(ex.getStatus().value()), ex.getReason()));
     }
 
     /** 兜底：所有未被捕获的异常（含受检与非受检） */
