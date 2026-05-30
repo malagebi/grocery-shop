@@ -3,9 +3,9 @@ package com.grocery.groceryshop.controller;
 import com.grocery.groceryshop.base.CommonResult;
 import com.grocery.groceryshop.disruptor.OrderEventBus;
 import com.grocery.groceryshop.disruptor.event.OrderEventType;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Api(tags = "Disruptor 演示")
+@Tag(name = "Disruptor 演示")
 @RestController
 @RequestMapping("/disruptor")
 @RequiredArgsConstructor
@@ -26,7 +26,7 @@ public class DisruptorDemoController {
 
     private final OrderEventBus orderEventBus;
 
-    @ApiOperation("查看各类订单事件的累计统计")
+    @Operation(summary ="查看各类订单事件的累计统计")
     @GetMapping("/stats")
     public CommonResult<Map<String, Long>> stats() {
         Map<String, Long> result = new LinkedHashMap<>();
@@ -35,14 +35,14 @@ public class DisruptorDemoController {
         return CommonResult.success(result);
     }
 
-    @ApiOperation("手动发布测试事件（压测 / 演示用）")
+    @Operation(summary ="手动发布测试事件（压测 / 演示用）")
     @PostMapping("/test-event")
     public CommonResult<String> testEvent(
-            @ApiParam("订单号") @RequestParam(defaultValue = "TEST-001") String orderNo,
-            @ApiParam("用户ID") @RequestParam(defaultValue = "1") Long userId,
-            @ApiParam("事件类型: CREATE PAY CANCEL COMPLETE REFUND") @RequestParam(defaultValue = "CREATE") String eventType,
-            @ApiParam("金额") @RequestParam(defaultValue = "99.00") BigDecimal amount,
-            @ApiParam("发布次数") @RequestParam(defaultValue = "1") int times) {
+            @Parameter(description ="订单号") @RequestParam(defaultValue = "TEST-001") String orderNo,
+            @Parameter(description ="用户ID") @RequestParam(defaultValue = "1") Long userId,
+            @Parameter(description ="事件类型: CREATE PAY CANCEL COMPLETE REFUND") @RequestParam(defaultValue = "CREATE") String eventType,
+            @Parameter(description ="金额") @RequestParam(defaultValue = "99.00") BigDecimal amount,
+            @Parameter(description ="发布次数") @RequestParam(defaultValue = "1") int times) {
 
         OrderEventType type;
         try {
@@ -57,11 +57,11 @@ public class DisruptorDemoController {
         return CommonResult.success("已发布 " + times + " 条 [" + type.getDesc() + "] 事件");
     }
 
-    @ApiOperation("并发压测：多线程同时向 RingBuffer 发布事件")
+    @Operation(summary ="并发压测：多线程同时向 RingBuffer 发布事件")
     @PostMapping("/benchmark")
     public CommonResult<String> benchmark(
-            @ApiParam("线程数") @RequestParam(defaultValue = "4") int threads,
-            @ApiParam("每线程发布次数") @RequestParam(defaultValue = "1000") int perThread) throws InterruptedException {
+            @Parameter(description ="线程数") @RequestParam(defaultValue = "4") int threads,
+            @Parameter(description ="每线程发布次数") @RequestParam(defaultValue = "1000") int perThread) throws InterruptedException {
 
         long start = System.currentTimeMillis();
         AtomicLong total = new AtomicLong(0);

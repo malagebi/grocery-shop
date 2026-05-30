@@ -1,8 +1,7 @@
 package com.grocery.groceryshop.service;
 
 import java.util.concurrent.*;
-
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author lishunli
@@ -10,9 +9,10 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  */
 public class MyFutureTask {
 
+    private static final AtomicInteger IDX = new AtomicInteger(1);
     private static ExecutorService executor =
-        new ThreadPoolExecutor(8, 20, 30L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(10),
-            new ThreadFactoryBuilder().setNameFormat("User_Async_FutureTask-%d").setDaemon(true).build(),
+        new ThreadPoolExecutor(8, 20, 30L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10),
+            r -> { Thread t = new Thread(r, "User_Async_FutureTask-" + IDX.getAndIncrement()); t.setDaemon(true); return t; },
             new ThreadPoolExecutor.CallerRunsPolicy());
 
     private static Integer test() throws Exception {

@@ -26,8 +26,8 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -208,9 +208,9 @@ public class ExceptionControllerAdvice {
     /** 按异常携带的 HTTP 状态码返回（Spring MVC 主动抛出的 ResponseStatusException） */
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<CommonResult<Void>> responseStatusHandler(final ResponseStatusException ex) {
-        log.warn("ResponseStatusException: status={}, reason={}", ex.getStatus(), ex.getReason());
-        return ResponseEntity.status(ex.getStatus())
-                .body(CommonResult.error(String.valueOf(ex.getStatus().value()), ex.getReason()));
+        log.warn("ResponseStatusException: status={}, reason={}", ex.getStatusCode(), ex.getReason());
+        return ResponseEntity.status(ex.getStatusCode())
+                .body(CommonResult.error(String.valueOf(ex.getStatusCode().value()), ex.getReason()));
     }
 
     /** 兜底：所有未被捕获的异常（含受检与非受检） */

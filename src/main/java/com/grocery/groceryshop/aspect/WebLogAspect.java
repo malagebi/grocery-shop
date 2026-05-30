@@ -12,7 +12,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
@@ -128,8 +128,8 @@ public class WebLogAspect {
                   if (a instanceof MultipartFile) {
                     return "MultipartFile(" + ((MultipartFile) a).getOriginalFilename() + ")";
                   }
-                  if (a instanceof javax.servlet.ServletRequest
-                      || a instanceof javax.servlet.ServletResponse) {
+                  if (a instanceof jakarta.servlet.ServletRequest
+                      || a instanceof jakarta.servlet.ServletResponse) {
                     return a.getClass().getSimpleName();
                   }
                   return a;

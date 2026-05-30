@@ -1,20 +1,19 @@
 package com.grocery.groceryshop.base;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-@ApiModel("通用返回实体")
+@Schema(description = "通用返回实体")
 public class CommonResult<T> {
 
-  @ApiModelProperty("消息")
+  @Schema(description ="消息")
   private String message;
 
-  @ApiModelProperty("编码")
+  @Schema(description ="编码")
   private String code;
 
-  @ApiModelProperty("结果")
+  @Schema(description ="结果")
   private T data;
 
   public static <T> CommonResult<T> success() {

@@ -13,7 +13,7 @@
     <property name="LOG_PATH" value="${LOG_PATH:-logs}"/>
     <property name="APP_NAME" value="grocery-shop"/>
 
-    <!-- Spring Boot 提供的彩色渲染类（仅控制台使用） -->
+    <!-- Spring Boot 3.x 彩色渲染类（包路径与 2.x 相同，Logback 1.4 兼容） -->
     <conversionRule conversionWord="clr"
                     converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
     <conversionRule conversionWord="wex"

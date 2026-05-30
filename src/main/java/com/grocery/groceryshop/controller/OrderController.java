@@ -7,8 +7,8 @@ import com.grocery.groceryshop.base.req.OrderListReq;
 import com.grocery.groceryshop.base.req.OrderUpdateReq;
 import com.grocery.groceryshop.service.OrderService;
 import com.grocery.groceryshop.vo.OrderVO;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,48 +19,48 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @RestController
 @RequestMapping("/order")
-@Api(tags = "订单模块")
+@Tag(name = "订单模块")
 public class OrderController {
 
     @Resource private OrderService orderService;
 
     @PostMapping
-    @ApiOperation("创建订单")
+    @Operation(summary ="创建订单")
     public CommonResult<OrderVO> create(@Validated @RequestBody OrderCreateReq req) {
         return CommonResult.success(orderService.createOrder(req));
     }
 
     @PutMapping
-    @ApiOperation("修改订单")
+    @Operation(summary ="修改订单")
     public CommonResult<OrderVO> update(@Validated @RequestBody OrderUpdateReq req) {
         return CommonResult.success(orderService.updateOrder(req));
     }
 
     @DeleteMapping("/{id}")
-    @ApiOperation("删除订单")
+    @Operation(summary ="删除订单")
     public CommonResult<Void> delete(@PathVariable("id") Long id) {
         orderService.deleteOrder(id);
         return CommonResult.success();
     }
 
     @GetMapping("/{id}")
-    @ApiOperation("订单详情")
+    @Operation(summary ="订单详情")
     public CommonResult<OrderVO> get(@PathVariable("id") Long id) {
         return CommonResult.success(orderService.getOrder(id));
     }
 
     @GetMapping("/list")
-    @ApiOperation("订单分页查询")
+    @Operation(summary ="订单分页查询")
     public CommonResult<CommonPageInfo<OrderVO>> list(OrderListReq req) {
         return CommonResult.success(orderService.listOrder(req));
     }
 
     @PostMapping("/cancel/{id}")
-    @ApiOperation("取消订单")
+    @Operation(summary ="取消订单")
     public CommonResult<OrderVO> cancel(@PathVariable("id") Long id) {
         return CommonResult.success(orderService.cancelOrder(id));
     }

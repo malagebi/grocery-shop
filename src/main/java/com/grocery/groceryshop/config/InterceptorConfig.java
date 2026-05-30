@@ -14,20 +14,11 @@ public class InterceptorConfig implements WebMvcConfigurer {
     registry
         .addInterceptor(new CustomerInterceptor())
         .addPathPatterns("/**")
+        .excludePathPatterns("/swagger-ui/**")
         .excludePathPatterns("/swagger-ui.html")
-        .excludePathPatterns("/doc.html")
+        .excludePathPatterns("/v3/api-docs/**")
         .excludePathPatterns("/swagger-resources/**")
         .excludePathPatterns("/error")
         .excludePathPatterns("/webjars/**");
-  }
-
-  @Override
-  public void addResourceHandlers(ResourceHandlerRegistry registry) {
-    registry
-        .addResourceHandler("swagger-ui.html")
-        .addResourceLocations("classpath:/META-INF/resources/");
-    registry
-        .addResourceHandler("/webjars/**")
-        .addResourceLocations("classpath:/META-INF/resources/webjars/");
   }
 }

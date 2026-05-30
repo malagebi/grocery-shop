@@ -15,29 +15,29 @@ import com.grocery.groceryshop.base.req.LoginReq;
 import com.grocery.groceryshop.entity.Commodity;
 import com.grocery.groceryshop.mapper.CommodityMapper;
 import com.grocery.groceryshop.vo.CommodityExcelVO;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController(value = "/")
-@Api(tags = "用户模块")
+@Tag(name = "用户模块")
 public class LoginController {
 
   @Resource private CommodityMapper commodityMapper;
 
   @GetMapping(value = "user")
-  @ApiOperation(value = "用户列表")
+  @Operation(summary = "用户列表")
   public CommonResult<CommonPageInfo<Commodity>> userList(
       @RequestParam(defaultValue = "1") int pageNum,
       @RequestParam(defaultValue = "10") int pageSize) {
@@ -63,7 +63,7 @@ public class LoginController {
   }
 
   @GetMapping(value = "qrCode")
-  @ApiOperation("生成二维码")
+  @Operation(summary = "生成二维码")
   public CommonResult<String> qrCode(@RequestParam String content) throws Exception {
     QrConfig config = new QrConfig();
     config.setErrorCorrection(ErrorCorrectionLevel.H);
@@ -73,7 +73,7 @@ public class LoginController {
   }
 
   @GetMapping("/commodity/export")
-  @ApiOperation("导出商品列表")
+  @Operation(summary = "导出商品列表")
   public void exportCommodity(HttpServletResponse response) throws Exception {
     List<Commodity> list = commodityMapper.selectAll();
     List<CommodityExcelVO> voList = list.stream().map(c -> {

@@ -1,29 +1,28 @@
 package com.grocery.groceryshop.base;
 
 import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
 import java.util.List;
 
 @Data
-@ApiModel(value = "分页信息")
+@Schema(description = "分页信息")
 public class CommonPageInfo<T> {
-    @ApiModelProperty(value = "当前页号")
+    @Schema(description = "当前页号")
     private int pageNum;
 
-    @ApiModelProperty(value = "每页的数量")
+    @Schema(description = "每页的数量")
     private int pageSize;
 
-    @ApiModelProperty(value = "总记录数")
+    @Schema(description = "总记录数")
     private long total;
 
-    @ApiModelProperty(value = "总页数")
+    @Schema(description = "总页数")
     private int pages;
 
-    @ApiModelProperty(value = "结果集")
+    @Schema(description = "结果集")
     private List<T> list;
 
 
