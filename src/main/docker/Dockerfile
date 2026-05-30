@@ -1,3 +1,4 @@
-FROM openjdk:8-jdk-alpine
-ADD *.jar app.jar
+FROM eclipse-temurin:17-jre-alpine
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} app.jar
 ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]

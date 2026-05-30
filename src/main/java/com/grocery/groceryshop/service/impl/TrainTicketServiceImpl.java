@@ -1,6 +1,6 @@
 package com.grocery.groceryshop.service.impl;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import com.grocery.groceryshop.feign.Train12306Client;
 import com.grocery.groceryshop.service.TrainTicketService;
 import com.grocery.groceryshop.trainticket.resp.CaptchaResp;

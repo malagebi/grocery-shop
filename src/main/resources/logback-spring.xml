@@ -119,7 +119,6 @@
     <logger name="org.apache" level="WARN"/>
     <logger name="com.alibaba.druid" level="WARN"/>
     <logger name="io.netty" level="INFO"/>
-    <logger name="springfox" level="WARN"/>
 
     <!-- ========== 按 profile 分环境装配 root ========== -->
     <springProfile name="dev">

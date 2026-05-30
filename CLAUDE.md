@@ -19,8 +19,8 @@ mvnw.cmd test
 # 根据数据库 Schema 生成 MyBatis Mapper 代码
 mvnw.cmd mybatis-generator:generate
 
-# 构建 Docker 镜像
-mvnw.cmd clean package docker:build
+# 构建 Docker 镜像（Cloud Native Buildpacks，无需本地 Dockerfile）
+mvnw.cmd spring-boot:build-image
 ```
 
 - 应用运行在 **8090** 端口。Swagger UI：`http://localhost:8090/swagger-ui.html` / `http://localhost:8090/doc.html`
@@ -28,7 +28,7 @@ mvnw.cmd clean package docker:build
 
 ## 架构
 
-本项目是一个 Spring Boot 2.1.7 / Java 8 应用，包含三个松耦合模块：
+本项目是一个 Spring Boot 3.3.12 / Java 17 应用（Jakarta EE 9 + Logback 1.4），包含三个松耦合模块：
 
 ### 1. 杂货铺 REST API（主模块）
 标准分层 MVC：`Controller → Service → Mapper（MyBatis）→ MySQL`
@@ -47,9 +47,9 @@ mvnw.cmd clean package docker:build
 
 ## 主要约定
 
-- **JSON 序列化**：使用阿里巴巴 FastJSON（在 `FastJsonConfiguration` 中配置），而非 Jackson。
-- **数据库**：MySQL，通过 Druid 连接池访问。配置位于 `application-dev.properties`（激活的 Profile 为 `dev`）。
+- **JSON 序列化**：使用阿里巴巴 FastJSON2（在 `FastJsonConfiguration` 中配置 spring6 转换器），而非 Jackson。
+- **数据库**：MySQL，通过 Druid 连接池访问。开发配置位于 `application-dev.properties`（激活的 Profile 为 `dev`），生产配置位于 `application-prod.properties`（全部凭据走环境变量）。敏感信息（DB 账号密码、Druid 监控口令）一律通过环境变量注入，不写明文。
 - **MyBatis**：Mapper 接口位于 `mapper/`，XML 文件位于 `src/main/resources/mapper/`，实体类位于 `entity/` 并使用 Lombok `@Data`。
-- **Swagger**：控制器使用 SpringFox `@Api`/`@ApiOperation` 注解，新增控制器应遵循此规范。
+- **API 文档**：使用 SpringDoc OpenAPI 3（`OpenApiConfig` 配置），控制器使用 `@Tag`/`@Operation` 等 OpenAPI 注解，新增控制器应遵循此规范。Knife4j/Swagger UI：`/swagger-ui.html` 或 `/doc.html`。
 - **拦截器与过滤器**：`CustomerFilter`（Servlet 过滤器）记录所有请求日志；`CustomerInterceptor`（Spring 拦截器）执行请求前后的处理逻辑。两者均已注册，避免在两者之间重复逻辑。
 - **异步任务示例**：`service/MyFutureTask.java` 是 `FutureTask` 的教学示例，不属于任何生产流程。

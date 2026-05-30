@@ -1,0 +1,11 @@
+.git
+.idea
+.vscode
+.mvn
+logs
+*.log
+*.iml
+HELP.md
+# 构建上下文只需 target 下的 jar，其余源码/缓存无需进入镜像
+src
+!target/*.jar

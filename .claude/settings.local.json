@@ -29,7 +29,25 @@
       "Bash(ssh *)",
       "Bash(git ls-remote *)",
       "Bash(Get-ChildItem *)",
-      "Bash(grep -E \"\\\\.java$\")"
+      "Bash(grep -E \"\\\\.java$\")",
+      "Bash(xargs grep -l \"javax.annotation\")",
+      "Bash(powershell *)",
+      "Bash(./mvnw.cmd clean *)",
+      "PowerShell(java *)",
+      "PowerShell(\\(Get-Command java\\).Source | Split-Path | Split-Path)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Java\\\\jdk-17\"; cd \"D:\\\\ideaProjects\\\\grocery-shop\"; .\\\\mvnw.cmd clean compile 2>&1 | Select-Object -Last 100)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Java\\\\jdk-17\"; cd \"D:\\\\ideaProjects\\\\grocery-shop\"; .\\\\mvnw.cmd --version 2>&1)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Java\\\\jdk-17\"; cd \"D:\\\\ideaProjects\\\\grocery-shop\"; .\\\\mvnw.cmd clean compile 2>&1 | Where-Object { $_ -match \"ERROR|WARNING|error:|warning:|BUILD\" } | Select-Object -Last 40)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Java\\\\jdk-17\"; cd \"D:\\\\ideaProjects\\\\grocery-shop\"; .\\\\mvnw.cmd clean compile 2>&1 | Where-Object { $_ -match \"ERROR|error:\" } | Select-Object -Last 60)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Java\\\\jdk-17\"; cd \"D:\\\\ideaProjects\\\\grocery-shop\"; .\\\\mvnw.cmd clean compile 2>&1 | Select-Object -Last 10)",
+      "Bash(grep -iE 'logs/|\\\\.log$|application-dev')",
+      "Bash(./mvnw.cmd -q -o clean compile)",
+      "Bash(./mvnw.cmd -q clean compile)",
+      "PowerShell($j = Get-ChildItem 'C:\\\\Program Files\\\\Eclipse Adoptium','C:\\\\Program Files\\\\Java','C:\\\\Program Files\\\\Microsoft' -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match 'jdk' } | Select-Object -ExpandProperty FullName; $j)",
+      "PowerShell($env:JAVA_HOME = 'C:\\\\Program Files\\\\Java\\\\jdk-17'; .\\\\mvnw.cmd -q clean compile 2>&1 | Select-Object -Last 50)",
+      "PowerShell($env:JAVA_HOME = 'C:\\\\Program Files\\\\Java\\\\jdk-17'; .\\\\mvnw.cmd test 2>&1 | Select-String -Pattern 'BUILD SUCCESS|BUILD FAILURE|Tests run|ERROR\\\\]' | Select-Object -Last 30)",
+      "PowerShell($env:JAVA_HOME = 'C:\\\\Program Files\\\\Java\\\\jdk-17'; .\\\\mvnw.cmd test 2>&1 | Select-String -Pattern 'BUILD SUCCESS|BUILD FAILURE|Tests run:|Caused by' | Select-Object -Last 15)",
+      "PowerShell($env:JAVA_HOME = 'C:\\\\Program Files\\\\Java\\\\jdk-17'; .\\\\mvnw.cmd -DskipTests package 2>&1 | Select-String -Pattern 'BUILD SUCCESS|BUILD FAILURE|Building jar' | Select-Object -Last 5)"
     ]
   }
 }
