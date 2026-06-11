@@ -23,10 +23,15 @@
         <!--jdbc的数据库连接-->
         <!--这里是以变量的形式定义，具体的值在 application.properties 文件中-->
         <!--jdbc:mysql://localhost:3306/数据库名?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC-->
+        <!-- 凭据通过 Maven 属性/环境变量注入，禁止在此写明文。
+             运行示例：
+               mvnw.cmd mybatis-generator:generate `
+                 -Dmbg.jdbc.url="jdbc:mysql://host:3306/groceryShop" `
+                 -Dmbg.jdbc.user=xxx -Dmbg.jdbc.password=xxx -->
         <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
-                        connectionURL="jdbc:mysql://192.168.0.69:3306/groceryShop"
-                        userId="writedafy"
-                        password="writeDafy!@#$">
+                        connectionURL="${mbg.jdbc.url}"
+                        userId="${mbg.jdbc.user}"
+                        password="${mbg.jdbc.password}">
         </jdbcConnection>
 
 
